@@ -1,0 +1,144 @@
+{% from "_formhelpers.html" import render_field %}
+{% extends 'base.html' %}
+
+{% block content %}
+<h3 align="center">Pedidos</h3>
+<br />
+<div class="table-responsive">
+   <div align="right">
+      <button type="button" name="age" id="age" data-toggle="modal" data-target="#add_data_Modal" class="btn btn-warning">Consultar Pedidos</button>
+      <button type="button" name="age" id="age" data-toggle="modal" data-target="#add_data_Modal" class="btn btn-warning">Novo Pedido</button>
+   </div>
+   <br />
+   <div id="employee_table">
+      <table class="table table-bordered">
+         <tr>
+            <th width="10%">Data do pedido</th>
+            <th width="15%">Cliente</th>
+            <th width="35%">Endereço</th>
+            <th width="15%">Data de entrega</th>
+            <th width="15%">Data de criação</th>
+            <th width="30%">Opções</th>
+         </tr>
+         {% for order in orders %}
+         <tr>
+            <td>{{order.order_date}}</td>
+            <td>{{order.customer_name}}</td>
+            <td>{{order.address}}</td>
+            <td>{{order.delivery_date}}</td>
+            <td>{{order.created_at}}</td>
+            <td><input type="button" name="alterar pedido"  data-toggle="modal" data-target="#dataModal" value="alterar pedido" id="{{order.id}}" class="btn btn-info btn-xs view_data" />
+               <input type="button" name="deletar pedido" value="deletar pedido" id="{{order.id}}" class="btn btn-info btn-xs view_data" />
+            </td>
+         </tr>
+         {% endfor %}
+      </table>
+   </div>
+</div>
+<div id="add_data_Modal" class="modal fade">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h4 align="left" class="modal-title">Criar novo pedido</h4>
+            <button type="button" class="close" align="right" data-dismiss="modal">×</button>
+         </div>
+         <div class="modal-body">
+            <form method="post" id="insert_form">
+               {{ form.customer.label }}
+               {{ form.customer }}
+               <br />
+               {{ form.is_custom_address.label }}
+               {{ form.is_custom_address(onclick="onClick(event)") }}
+               <br />
+               {{ form.custom_address.label }}
+               {{ form.custom_address(class="form-control", id="custom_address", disabled="true")}}
+
+               <br />
+               {{ form.delivery_date.label  }}
+               <dl>
+                {{ form.csrf_token }}
+                {{ render_field(form.delivery_date) }}
+               </dl>
+               <br />
+               {{ form.remarks.label  }}
+               {{ form.remarks(class="form-control")  }}
+               <br />
+               {{form.delivery_bool.label}}
+               {{form.delivery_bool}}
+               <br />
+               {{form.delivery_fee.label}}
+               {{form.delivery_fee(class="form-control")}}
+               <br />
+               <div class="modal-footer">
+                  {{form.create_order(class="btn btn-success success")}}
+               </div>
+               <br />
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+<div id="dataModal" class="modal fade">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">×</button>
+            <h4 class="modal-title">Employee Details</h4>
+         </div>
+         <div class="modal-body">
+            <div class="table-responsive">
+               <table class="table table-bordered">
+                  <tr>
+                     <td width="30%"><label>Cliente</label></td>
+                     {{ form.customerfield }}
+                  </tr>
+                  <tr>
+                     <td width="30%"><label>Quantidade</label></td>
+                     <td width="70%"><input type="text" class="form-control" id="view_address"></td>
+                  </tr>
+               </table>
+            </div>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+         </div>
+      </div>
+   </div>
+</div>
+<div id="add_products" class="modal fade">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">×</button>
+            <h4 class="modal-title">Employee Details</h4>
+         </div>
+         <div class="modal-body">
+            <div class="table-responsive">
+               <table class="table table-bordered">
+                  <tr>
+                     <td width="30%"><label>Cliente</label></td>
+                     {{ form.customerfield }}
+                  </tr>
+                  <tr>
+                     <td width="30%"><label>Quantidade</label></td>
+                     <td width="70%"><input type="text" class="form-control" id="view_address"></td>
+                  </tr>
+               </table>
+            </div>
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+         </div>
+      </div>
+   </div>
+</div>
+
+<script>
+  function onClick(evt) {
+  const isChecked = evt.target.checked;
+  const customAddressField = document.getElementById('custom_address');
+
+  customAddressField.disabled = !isChecked
+}
+</script>
+ {% endblock %}
