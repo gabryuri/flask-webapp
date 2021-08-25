@@ -1,0 +1,203 @@
+{% from "_formhelpers.html" import render_field %}
+{% extends 'base.html' %}
+
+{% block content %}
+<h3 align="center">Cardápio de tortas</h3>
+<br />
+<div class="table-responsive">
+   <div align="right">
+      <button type="button" name="age" id="age" data-toggle="modal" data-target="#add_data_Modal">Adicionar nova torta</button>
+   </div>
+   <br />
+   <div id="employee_table">
+      <table class="table table-bordered">
+         <tr>
+            <th width="30%">Nome do produto</th>
+            <th width="40%">Descrição</th>
+            <th width="10%">Preço unitário</th>
+            <th width="10%">Opções</th>
+         </tr>
+         {% for product in menu %}
+         <tr>
+            <td>{{product.product_name}}</td>
+            <td>{{product.product_description}}</td>
+            <td>{{product.price}}</td>
+            <td>
+               <button type="button" class="bt view_data" name="alterar item" data-toggle="modal"  data-target="#modalItemsModifier" data-url="{{ url_for('menus', product_id=product.product_id) }}" data-ajaxurl="{{ url_for('select') }}"
+               id="{{ product.product_id }}"> Alterar item
+        </button>
+               <form action='/menus/delete_product/{{product.product_id}}' method="post" onclick="return confirm('Are you sure you wish to delete?');">
+                  <button name="deletar item" type="submit" id="{{product.product_id}}">Deletar item</button>
+               </form>
+         </tr>
+         {% endfor %}
+      </table>
+   </div>
+</div>
+
+<div id="add_data_Modal" class="modal">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h4 align="left" class="modal-title">Adicionar novo item</h4>
+            <button type="button" class="close" align="right" data-dismiss="modal">×</button>
+         </div>
+         <div class="modal-body">
+            <form method="post" id="insert_form">
+               {{ form.product_name.label }}
+               {{ form.product_name(class="form-control") }}
+               <br />
+               {{ form.product_description.label }}
+               {{ form.product_description(class="form-control") }}
+               <br />
+               {{ form.price.label  }}
+               {{ form.price(class="form-control")  }}
+               <br />
+               <div class="modal-footer">
+                  {{form.submit(class="btn btn-success success")}}
+               </div>
+               <br />
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+
+
+<div id="modalItemsModifier"  class="modal">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h4 align="left" class="modal-title">Alterar item</h4>
+            <button type="button" class="close" align="right" data-dismiss="modal">×</button>
+         </div>
+         <div class="modal-body">
+
+            <form method="post" id="insert_form">
+               {{ form.product_name.label }}
+               {{ form.product_name(class="form-control", id="product_name_input") }}
+               <br />
+               {{ form.product_description.label }}
+               {{ form.product_description(class="form-control", id="product_description_input") }}
+               <br />
+               {{ form.price.label  }}
+               {{ form.price(class="form-control", id="price_input") }}
+               <br />
+               <div class="modal-footer">
+
+               {{form.submit(class="btn btn-success success", id="confirm-alteration")}}
+
+               </div>
+               <br />
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+
+<script>
+$(document).ready(function(){
+ $("#modalItemsModifier").on("show.bs.modal", function(event){
+
+     //Get the button that triggered the modal
+     var button = $(event.relatedTarget);
+
+     // Extract value from the custom data-* attribute
+     var url = button.data("url");
+     $(this).find('#insert_form').attr('action', url)
+ });
+});
+
+
+$(document).on('click', '.view_data', function(event){
+  console.log('AEEEEEREE')
+  var product_id = $(this).attr("id");
+  var button = $(event.relatedTarget);
+  // var url = button.data("data-ajaxurl");
+  var url = $(this).attr("data-ajaxurl");
+  console.log(url)
+  $.ajax({
+   url:url,
+   method:"POST",
+   data:{product_id:product_id},
+   success:function(data){
+    // $('#modalItemsModifier').modal('show');
+    var data_rs = JSON.parse(data);
+    $('#product_name_input').val(data_rs['product_name']);
+    $('#product_description_input').val(data_rs['product_description']);
+    $('#price_input').val(data_rs['price']);
+   }
+  });
+
+ });
+
+
+
+</script>
+
+  {% endblock %}
+
+
+
+
+
+<!--
+<<script type="text/javascript">
+$(document).ready(function(){
+  $('#modalItemsModifier').on("show.bs.modal", function () {
+    setTimeout(function(){
+    alert("Hi");
+  },1000);
+  });
+
+});
+
+</script> -->
+
+<!-- <script>
+$(document).ready(function(){
+    $(".button btn btn-warning").on("click", function(){
+        var dataId = $(this).attr("data-id");
+        alert("The data-id of clicked item is: " + dataId);
+    });
+});
+</script> -->
+
+<!-- <script>
+$(document).ready(function () {
+        $('#dataModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);//Button which is clicked
+            var clickedButtonId= button.data('Id');//Get id of the button
+          // set id to the hidden input field in the form.
+           $("input #id").val(clickedButtonId);
+    });
+</script> -->
+<!-- <script>
+$(document).on("click", ".open-AddBookDialog", function () {
+     var myBookId = $(this).attr("data-id")
+    ("#modal_body").html( myBookId );
+     //$(".modal-body #bookId").val( myBookId );
+     // As pointed out in comments,
+     // it is unnecessary to have to manually call the modal.
+     // $('#addBookDialog').modal('show');
+});
+
+</script> -->
+<!--
+  <script>
+     $("#modify_item").on("click", ".bt", function () {
+      var ids = $(this).attr('data-id');
+      $("#modal_body").html( ids );
+     });
+   </script>
+
+
+
+<script type="text/javascript">
+      $("#modify_item").click(function () {
+          var name = $("#id").attr();
+          var str = "You Have Entered "
+              + "Name: " + name;
+          $("#modal_body").html(str);
+  });
+  </script> -->

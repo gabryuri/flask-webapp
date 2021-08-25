@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Adicionar pedido</h2>
+<form action="" method="post">
+  <p class="form-field">
+
+      {{ form.product.label }} <br>
+      {{ form.product }}
+
+  </p>
+
+  <fieldset class="form-field">{{ form.quantity.label }}
+
+    {{ form.quantity }}
+          </fieldset>
+
+
+  {{ form.submit }}
+
+</form>
+{% endblock %}
