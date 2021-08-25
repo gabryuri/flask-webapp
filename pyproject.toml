@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "order-webapp"
+version = "1.0.0"
+description = ""
+authors = ["Gabriel Ribeiro"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.25.1"
+boto3 = "^1.17.111"
+virtualenv = "^20.5.0"
+zappa = "^0.50.0"
+pynamodb = "^5.1.0"
+troposphere = "2.7.0"
+Werkzeug = "^2.0.1"
+Flask = "^2.0.1"
+Flask-WTF = "^0.15.1"
+WTForms = "^2.3.3"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
