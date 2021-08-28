@@ -56,12 +56,6 @@ class DynamoHandler:
         self.table.delete_item(Key=key_array)
 
     def query_by_key(self, value) -> dict:
-        # print(self.key)
-        # print(value)
-        # response = self.table.query(
-        #     KeyConditionExpression=Key(self.key).eq(value)
-        # )
-
 
         key_array = dict(zip(self.table_keys, value))
         response = self.table.get_item(Key=key_array)
@@ -158,5 +152,3 @@ class CustomerHandler(DynamoHandler):
 
         ]
         )
-
-

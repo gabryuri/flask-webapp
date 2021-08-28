@@ -52,6 +52,7 @@ def orders():
     form = CreateOrderForm()
 
     orders = orders_dh.retrieve_all_items()
+    print(orders)
     customers = customers_dh.retrieve_all_items()
 
     customer_choices = [
@@ -73,6 +74,19 @@ def orders():
         return redirect(url_for("add_items", order_timestamp_id=order_timestamp_id))
 
     return render_template("orders.html", orders=orders, form=form)
+
+
+@app.route("/orders/delete_order/<order_timestamp_id>", methods=["GET", "POST"])
+def delete_order(order_timestamp_id):
+    if request.method == "POST":
+        order_id = int(float(order_timestamp_id))
+        order_day = datetime.utcfromtimestamp(order_id).strftime('%Y-%m-%d')
+
+        #order_to_delete = orders_dh.query_by_key([order_day, order_id])
+
+        orders_dh.delete_item(value=[order_day, order_id])
+        #print(order_to_delete)
+    return redirect(url_for("orders"))
 
 @app.route("/menus", defaults={'product_id': None}, methods=["GET", "POST", "PUT"])
 @app.route("/menus/<product_id>", methods=["GET", "POST", "PUT"])
@@ -114,6 +128,8 @@ def delete_product_from_menu(product_id):
         return redirect("/menus")
 
     return render_template("menus.html", menu=menu, form=form)
+
+
 
 @app.route('/select_product', methods=['GET', 'POST'])
 def select():

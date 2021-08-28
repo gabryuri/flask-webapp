@@ -27,8 +27,10 @@
             <td>{{order.address}}</td>
             <td>{{order.delivery_date}}</td>
             <td>{{order.created_at}}</td>
-            <td><input type="button" name="alterar pedido"  data-toggle="modal" data-target="#dataModal" value="alterar pedido" id="{{order.id}}" class="btn btn-info btn-xs view_data" />
-               <input type="button" name="deletar pedido" value="deletar pedido" id="{{order.id}}" class="btn btn-info btn-xs view_data" />
+            <td><input type="button" name="alterar pedido"  data-toggle="modal" data-target="#dataModal" value="alterar pedido" id="{{order.order_timestamp_id}}" class="bt view_data" />
+               <form action='/orders/delete_order/{{order.order_timestamp_id}}' method="post" onclick="return confirm('Tem certeza que quer excluir o pedido?');">
+                  <button name="deletar item" type="submit" id="{{order.order_timestamp_id}}">Deletar Pedido</button>
+               </form>
             </td>
          </tr>
          {% endfor %}
