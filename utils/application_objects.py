@@ -31,6 +31,7 @@ class OrderRegistry:
         self.last_timestamp_id = self.current_order.order_dict["order_timestamp_id"]
 
 
+
 class Order:
     def __init__(self, order_form, customer_data):
 
@@ -38,6 +39,7 @@ class Order:
 
         nowtime = int(time.mktime(datetime.now().timetuple()))
         nowdate = datetime.now().strftime("%Y-%m-%d")
+        order_year = int(datetime.now().strftime('%Y'))
 
         if order_form.is_custom_address.data == True:
             delivery_address = customer_data["default_address"]
@@ -45,8 +47,9 @@ class Order:
             delivery_address = "TBD"
 
         self.order_dict = {
-            "order_date": nowdate,
+            "order_year": order_year,
             "order_timestamp_id": nowtime,
+            "order_date": nowdate,
             "delivery_date": order_form.delivery_date.data.strftime("%Y-%m-%d"),
             "customer_id": order_form.customer.data,
             "customer_name": customer_data["customer_name"],
@@ -55,7 +58,7 @@ class Order:
             "remark": order_form.remarks.data,
             "delivery_option": order_form.delivery_bool.data,
             "delivery_fee": order_form.delivery_fee.data,
-            "cart": {jsonify(self.cart.cart_items)},
+            "cart": self.cart.cart_items,
         }
 
 
@@ -91,7 +94,6 @@ class Cart:
     def add_item_to_list(self, item_form):
         product_id = item_form.product.data
         quantity = int(float(item_form.quantity.data))
-        print(product_id)
 
         if isinstance(product_id, str):
             product_id = int(float(product_id))
@@ -99,8 +101,8 @@ class Cart:
         item = self.menu_handler.query_by_key([product_id])
 
         itemArray = {
-            product_id: {
-                "product_name": product_id,
+            str(product_id): {
+                "product_name": item["product_name"],
                 "quantity": quantity,
                 "price": float(item["price"]),
                 "total_price": float(quantity) * float(item["price"]),

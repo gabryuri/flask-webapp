@@ -1,8 +1,8 @@
-import datetime
+import datetime, decimal, time
 import boto3
 from boto3.dynamodb.conditions import Key
 from decimal import Decimal
-import decimal
+
 
 class DynamoHandler:
     def __init__(self, initialize: bool, table:str, table_keys:str, region_name='us-east-1'):
@@ -107,13 +107,13 @@ class MenuHandler(DynamoHandler):
 class OrderHandler(DynamoHandler):
     def __init__(self, region_name='us-east-1', initialize=False):
         super().__init__(table='inboxsabores-main-table',
-                         table_keys=['order_date','order_timestamp_id'],
+                         table_keys=['order_year','order_timestamp_id'],
                          initialize=initialize)
 
         table = self.create_table(
         key_schema=[
             {
-                'AttributeName': 'order_date',
+                'AttributeName': 'order_year',
                 'KeyType': 'HASH'  # Partition key
             },
             {
@@ -123,8 +123,8 @@ class OrderHandler(DynamoHandler):
                 ],
         attr_definitions=[
             {
-                'AttributeName': 'order_date',
-                'AttributeType': 'S'
+                'AttributeName': 'order_year',
+                'AttributeType': 'N'
             },
             {
                 'AttributeName': 'order_timestamp_id',
@@ -132,6 +132,28 @@ class OrderHandler(DynamoHandler):
             },
                 ]
         )
+    def query_by_date_interval(self, initial_date, end_date) -> dict:
+        initial_date = datetime.datetime.strptime(initial_date,'%Y-%m-%d')
+        end_date = datetime.datetime.strptime(end_date,'%Y-%m-%d')
+
+        initial_timestamp = int(time.mktime(initial_date.timetuple()))
+        end_timestamp = int(time.mktime(end_date.timetuple()))
+
+        distinct_years = list(range(initial_date.year,end_date.year+1))
+
+        tot_response = []
+        for year in distinct_years:
+
+            response = self.table.query(
+                        KeyConditionExpression=Key('order_year').eq(year)
+                                             & Key('order_timestamp_id').between(initial_timestamp,end_timestamp)
+                                ).get('Items')
+
+            tot_response.extend(response)
+
+        items_to_retrieve = [self.convert_decimal_to_float(item) for item in tot_response]
+        return items_to_retrieve
+
 
 class CustomerHandler(DynamoHandler):
     def __init__(self, region_name='us-east-1', initialize=False):
