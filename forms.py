@@ -63,7 +63,7 @@ class AddItemToMenu(FlaskForm):
 
     price = StringField("Preço", [DataRequired()])
 
-    submit = SubmitField("Adicionar item ao menu")
+    submit = SubmitField("Confirmar")
 
 
 #

@@ -14,11 +14,11 @@
       <table class="table table-bordered">
          <tr>
             <th width="10%">Data do pedido</th>
-            <th width="15%">Cliente</th>
-            <th width="35%">Endereço</th>
-            <th width="15%">Data de entrega</th>
-            <th width="15%">Data de criação</th>
-            <th width="30%">Opções</th>
+            <th width="10%">Cliente</th>
+            <th width="20%">Endereço</th>
+            <th width="10%">Data de entrega</th>
+            <th width="25%">Itens do pedido</th>
+            <th width="15%">Opções</th>
          </tr>
          {% for order in orders %}
          <tr>
@@ -26,8 +26,13 @@
             <td>{{order.customer_name}}</td>
             <td>{{order.address}}</td>
             <td>{{order.delivery_date}}</td>
-            <td>{{order.created_at}}</td>
-            <td><input type="button" name="alterar pedido"  data-toggle="modal" data-target="#dataModal" value="alterar pedido" id="{{order.order_timestamp_id}}" class="bt view_data" />
+            <td>{% for item in order.cart %}
+                {{ order.cart.get(item).get('product_name') + ' - Qtd: ' }}
+                {{ order.cart.get(item).get('quantity')}}
+                <br/>
+                {% endfor %}
+            </td>
+            <td><input type="button" name="alterar pedido"  data-toggle="modal" data-target="#dataModal" data-ajaxurl="{{ url_for('select_order') }}" data-url="{{ url_for('orders', order_timestamp_id=order.order_timestamp_id) }}" value="alterar pedido" id="{{order.order_timestamp_id}}" class="bt view_order_data" />
                <form action='/orders/delete_order/{{order.order_timestamp_id}}' method="post" onclick="return confirm('Tem certeza que quer excluir o pedido?');">
                   <button name="deletar item" type="submit" id="{{order.order_timestamp_id}}">Deletar Pedido</button>
                </form>
@@ -80,26 +85,46 @@
       </div>
    </div>
 </div>
+
 <div id="dataModal" class="modal fade">
    <div class="modal-dialog">
       <div class="modal-content">
          <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">×</button>
-            <h4 class="modal-title">Employee Details</h4>
+            <h4 class="modal-title">Alterar Pedido</h4>
          </div>
          <div class="modal-body">
-            <div class="table-responsive">
-               <table class="table table-bordered">
-                  <tr>
-                     <td width="30%"><label>Cliente</label></td>
-                     {{ form.customerfield }}
-                  </tr>
-                  <tr>
-                     <td width="30%"><label>Quantidade</label></td>
-                     <td width="70%"><input type="text" class="form-control" id="view_address"></td>
-                  </tr>
-               </table>
-            </div>
+            <form method="post" id="order_insert_form">
+               {{ form.customer.label }}
+               {{ form.customer(class="form-control", id="customer_name_input_cell") }}
+               <br />
+               {{ form.is_custom_address.label }}
+               {{ form.is_custom_address(onclick="onClick(event)" , id="is_custom_address_input") }}
+               <br />
+               {{ form.custom_address.label }}
+               {{ form.custom_address(class="form-control", id="custom_address_input", disabled="true")}}
+
+               <br />
+               {{ form.delivery_date.label  }}
+               <dl>
+                {{ form.csrf_token }}
+                {{ render_field(form.delivery_date, id="delivery_date_input") }}
+               </dl>
+               <br />
+               {{ form.remarks.label  }}
+               {{ form.remarks(class="form-control", id="remarks_input")  }}
+               <br />
+               {{form.delivery_bool.label}}
+               {{form.delivery_bool( id="delivery_bool_input")}}
+               <br />
+               {{form.delivery_fee.label}}
+               {{form.delivery_fee(class="form-control", id="delivery_fee_input")}}
+               <br />
+               <div class="modal-footer">
+                  {{form.create_order(class="btn btn-success success")}}
+               </div>
+               <br />
+            </form>
          </div>
          <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -107,6 +132,7 @@
       </div>
    </div>
 </div>
+<!--
 <div id="add_products" class="modal fade">
    <div class="modal-dialog">
       <div class="modal-content">
@@ -133,7 +159,7 @@
          </div>
       </div>
    </div>
-</div>
+</div> -->
 
 <script>
   function onClick(evt) {
@@ -142,5 +168,46 @@
 
   customAddressField.disabled = !isChecked
 }
+
+$(document).ready(function(){
+ $("#dataModal").on("show.bs.modal", function(event){
+
+     //Get the button that triggered the modal
+     var button = $(event.relatedTarget);
+
+     // Extract value from the custom data-* attribute
+     var url = button.data("url");
+     $(this).find('#order_insert_form').attr('action', url)
+ });
+});
+
+$(document).on('click', '.view_order_data', function(event){
+  var order_timestamp_id = $(this).attr("id");
+  var button = $(event.relatedTarget);
+  // var url = button.data("data-ajaxurl");
+  var url = $(this).attr("data-ajaxurl");
+  console.log(url)
+  $.ajax({
+   url:url,
+   method:"POST",
+   data:{order_timestamp_id:order_timestamp_id},
+   success:function(data){
+    // $('#modalItemsModifier').modal('show');
+    var data_rs = JSON.parse(data);
+    console.log(data_rs)
+    $('#customer_name_input_cell').val(data_rs['customer_id']);
+    $('#is_custom_address_input').val(data_rs['is_custom_address']);
+    $('#custom_address_input').val(data_rs['custom_address']);
+    $('#delivery_date_input').val(data_rs['delivery_date']);
+    $('#remarks_input').val(data_rs['remark']);
+    $('#delivery_bool_input').val(data_rs['delivery_option']);
+    $('#delivery_fee_input').val(data_rs['delivery_fee']);
+
+   }
+  });
+
+ });
+
+
 </script>
  {% endblock %}

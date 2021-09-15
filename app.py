@@ -37,13 +37,20 @@ def index():
 
 @app.route("/<order_timestamp_id>/add_items", methods=["GET", "POST"])
 def add_items(order_timestamp_id):
+
     form = AddItemsForm()
-    print(order_timestamp_id)
+    order_timestamp_id = int(order_timestamp_id)
+    order_registry.instantiate_order(order_timestamp_id=order_timestamp_id)
+
+    cart_items = order_registry.current_order.cart.cart_items
+    print(cart_items)
+
 
     if request.method == "POST" and form.is_submitted():
+
         order_registry.current_order.cart.add_item_to_list(item_form=form)
 
-    return render_template("edit_items.html", form=form)
+    return render_template("edit_items.html", form=form, cart_items=cart_items)
 
 
 @app.route("/orders", methods=["GET", "POST"])
@@ -51,7 +58,7 @@ def orders():
     print(session)
     form = CreateOrderForm()
 
-    orders = orders_dh.retrieve_all_items()
+    orders = orders_dh.query_by_date_interval('2021-08-01','2022-08-30')
     print(orders)
     customers = customers_dh.retrieve_all_items()
 
@@ -75,18 +82,38 @@ def orders():
 
     return render_template("orders.html", orders=orders, form=form)
 
+@app.route("/orders/create_order", methods=["GET", "POST"])
+def create_order():
+    if request.method == "POST":
+        print(order_registry.current_order.order_dict)
+        orders_dh.put_item(item=order_registry.current_order.order_dict)
+
+    return redirect(url_for("orders"))
 
 @app.route("/orders/delete_order/<order_timestamp_id>", methods=["GET", "POST"])
 def delete_order(order_timestamp_id):
     if request.method == "POST":
         order_id = int(float(order_timestamp_id))
-        order_day = datetime.utcfromtimestamp(order_id).strftime('%Y-%m-%d')
+        order_year = datetime.utcfromtimestamp(order_timestamp_id).strftime('%Y')
 
         #order_to_delete = orders_dh.query_by_key([order_day, order_id])
 
-        orders_dh.delete_item(value=[order_day, order_id])
+        orders_dh.delete_item(value=[order_day, order_year])
         #print(order_to_delete)
     return redirect(url_for("orders"))
+
+
+@app.route('/orders/select_order', methods=['GET', 'POST'])
+def select_order():
+    if request.method == 'POST':
+
+        order_timestamp_id = int(float(request.form['order_timestamp_id']))
+        order_year = int(datetime.utcfromtimestamp(order_timestamp_id).strftime('%Y'))
+
+        item = orders_dh.query_by_key([order_year, order_timestamp_id])
+        print(item)
+
+        return json.dumps(item)
 
 @app.route("/menus", defaults={'product_id': None}, methods=["GET", "POST", "PUT"])
 @app.route("/menus/<product_id>", methods=["GET", "POST", "PUT"])
@@ -137,9 +164,12 @@ def select():
 
         product_id = int(float(request.form['product_id']))
         item = menus_dh.query_by_key([product_id])
-
+        #item['delivery_bool'] = str(item['delivery_bool'])
 
         return json.dumps(item)
+
+
+
 
 
 

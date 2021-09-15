@@ -1,23 +1,64 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div style="width: 100%;">
+        <div style="width: 30%; height: 100px; float: left; ">
+          <h2>Adicionar pedido</h2>
+          <form action="" method="post">
+            <p class="form-field">
 
-<h2>Adicionar pedido</h2>
-<form action="" method="post">
-  <p class="form-field">
+                {{ form.product.label }} <br>
+                {{ form.product }}
 
-      {{ form.product.label }} <br>
-      {{ form.product }}
+            </p>
 
-  </p>
+            <fieldset class="form-field">{{ form.quantity.label }}
 
-  <fieldset class="form-field">{{ form.quantity.label }}
-
-    {{ form.quantity }}
-          </fieldset>
+              {{ form.quantity }}
+                    </fieldset>
 
 
-  {{ form.submit }}
+            {{ form.submit }}
 
+          </form>
+        </div>
+        <div style="margin-left: 30%; height: 100px;">
+
+        </div>
+    </div>
+
+    <div id="employee_table" style="margin-left: 40%;">
+       <table class="table table-bordered">
+          <tr>
+             <th width="30%">Nome do produto</th>
+             <th width="40%">Quantidade</th>
+             <th width="40%">Preço unitário</th>
+             <th width="40%">Preço total</th>
+             <th width="40%">Opções</th>
+          </tr>
+           {% for item in cart_items %}
+          <tr>
+              <td>{{ cart_items.get(item).get('product_name') }}</td>
+              <td>{{ cart_items.get(item).get('quantity')}}</td>
+              <td>{{ cart_items.get(item).get('price')}}</td>
+              <td>{{ cart_items.get(item).get('total_price')}}</td>
+              <br/>
+
+
+              <td>  <button type="button" class="bt view_data" name="retirar item" data-toggle="modal"  data-target="#modalItemsModifier" data-url="{{ url_for('menus', product_id=1) }}" data-ajaxurl="{{ url_for('select') }}"
+                id="{{ item }}"> Retirar item
+         </button></td>
+          </tr>
+          {% endfor %}
+       </table>
+    </div>
+
+
+
+
+
+
+<form action='/orders/create_order' method="post" onclick="return confirm('Confirma o pedido?');">
+   <button name="confirm order" type="submit" >Concluir Pedido</button>
 </form>
 {% endblock %}
