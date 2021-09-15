@@ -60,6 +60,7 @@ class DynamoHandler:
         key_array = dict(zip(self.table_keys, value))
         response = self.table.get_item(Key=key_array)
         item = self.convert_decimal_to_float(response['Item'])
+
         return item
 
     def convert_float_to_decimal(self, item: dict) -> dict:

@@ -3,8 +3,7 @@ import time
 
 from flask import jsonify
 
-from utils.dynamo_functions import CustomerHandler, MenuHandler
-
+from utils.dynamo_functions import CustomerHandler, MenuHandler, OrderHandler
 
 class OrderRegistry:
     def __init__(self):
@@ -20,7 +19,7 @@ class OrderRegistry:
             [int(float(order_form.customer.data))]
         )
 
-        self.current_order = Order(order_form, customer_data)
+        self.current_order = Order(order_form=order_form, customer_data=customer_data)
         self.current_order_status = "UNREGISTERED"
 
         # order_array = {'order_timestamp_id': self.current_order.order_dict['order_timestamp_id'],
@@ -30,10 +29,20 @@ class OrderRegistry:
         # self.registered_orders.append(order_array)
         self.last_timestamp_id = self.current_order.order_dict["order_timestamp_id"]
 
+    def instantiate_order(self, order_timestamp_id):
+
+        self.current_order = Order(order_timestamp_id=order_timestamp_id)
+        print(self.current_order.order_dict)
+        self.last_timestamp_id = self.current_order.order_dict["order_timestamp_id"]
+
 
 
 class Order:
-    def __init__(self, order_form, customer_data):
+    def __init__(self, **kwargs):
+
+        order_form = kwargs.get('order_form', None)
+        customer_data = kwargs.get('customer_data', None)
+        order_timestamp_id = kwargs.get('order_timestamp_id', None)
 
         self.cart = Cart()
 
@@ -41,25 +50,40 @@ class Order:
         nowdate = datetime.now().strftime("%Y-%m-%d")
         order_year = int(datetime.now().strftime('%Y'))
 
-        if order_form.is_custom_address.data == True:
-            delivery_address = customer_data["default_address"]
-        else:
-            delivery_address = "TBD"
 
-        self.order_dict = {
-            "order_year": order_year,
-            "order_timestamp_id": nowtime,
-            "order_date": nowdate,
-            "delivery_date": order_form.delivery_date.data.strftime("%Y-%m-%d"),
-            "customer_id": order_form.customer.data,
-            "customer_name": customer_data["customer_name"],
-            "is_custom_address": order_form.is_custom_address.data,
-            "address": delivery_address,
-            "remark": order_form.remarks.data,
-            "delivery_option": order_form.delivery_bool.data,
-            "delivery_fee": order_form.delivery_fee.data,
-            "cart": self.cart.cart_items,
-        }
+        if order_form is not None and customer_data is not None:
+
+            if order_form.is_custom_address.data == True:
+                delivery_address = customer_data["default_address"]
+            else:
+                delivery_address = "TBD"
+
+            self.order_dict = {
+                "order_year": order_year,
+                "order_timestamp_id": nowtime,
+                "order_date": nowdate,
+                "delivery_date": order_form.delivery_date.data.strftime("%Y-%m-%d"),
+                "customer_id": order_form.customer.data,
+                "customer_name": customer_data["customer_name"],
+                "is_custom_address": order_form.is_custom_address.data,
+                "address": delivery_address,
+                "remark": order_form.remarks.data,
+                "delivery_option": order_form.delivery_bool.data,
+                "delivery_fee": order_form.delivery_fee.data,
+                "cart": self.cart.cart_items,
+            }
+
+        if order_timestamp_id:
+            order_dh = OrderHandler()
+
+            order_id = int(float(order_timestamp_id))
+            order_year = int(datetime.utcfromtimestamp(order_timestamp_id).strftime('%Y'))
+
+            order_data = order_dh.query_by_key(value=[order_year, order_id])
+            print(order_data)
+            self.cart.cart_items = order_data.get('cart')
+            self.order_dict = order_data
+            self.order_dict['cart'] = self.cart.cart_items
 
 
 class Cart:
@@ -111,6 +135,10 @@ class Cart:
         self.cart_items.update(itemArray)
         print(self.cart_dict)
 
+#
+# oh = OrderRegistry()
+#
+# oh.instantiate_order(1630163151)
 
 # class Order:
 #     def __init__(self, table:str, keyname:str, region_name='us-east-1'):
