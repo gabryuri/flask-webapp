@@ -58,7 +58,7 @@
 
 
 
-<form action='/orders/create_order' method="post" onclick="return confirm('Confirma o pedido?');">
+<form action="{{ url_for('create_order') }}" method="post" onclick="return confirm('Confirma o pedido?');">
    <button name="confirm order" type="submit" >Concluir Pedido</button>
 </form>
 {% endblock %}
