@@ -53,6 +53,7 @@ class CreateOrderForm(FlaskForm):
     delivery_bool = BooleanField("Entregar no cliente? ")
     delivery_fee = FloatField("Taxa de entrega")
     create_order = SubmitField("Confirmar pedido")
+    update_order = SubmitField("Atualizar pedido")
 
 
 class AddItemToMenu(FlaskForm):

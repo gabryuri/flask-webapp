@@ -35,12 +35,19 @@ def index():
         return render_template("home.html")
 
 
-@app.route("/<order_timestamp_id>/add_items", methods=["GET", "POST"])
-def add_items(order_timestamp_id):
+@app.route("/add_items/<mode>/<order_timestamp_id>", methods=["GET", "POST"])
+def add_items(mode, order_timestamp_id):
+
+    if mode == 'retrieved':
+        order_registry.instantiate_order(order_timestamp_id=order_timestamp_id)
 
     form = AddItemsForm()
-    order_timestamp_id = int(order_timestamp_id)
-    order_registry.instantiate_order(order_timestamp_id=order_timestamp_id)
+    order_timestamp_id = int(float(order_timestamp_id))
+    #print(order_registry.last_timestamp_id)
+    print(order_timestamp_id)
+
+    #if order_timestamp_id != order_registry.current_order.order_timestamp_id:
+
 
     cart_items = order_registry.current_order.cart.cart_items
     print(cart_items)
@@ -55,11 +62,11 @@ def add_items(order_timestamp_id):
 
 @app.route("/orders", methods=["GET", "POST"])
 def orders():
-    print(session)
+    #print(session)
     form = CreateOrderForm()
 
-    orders = orders_dh.query_by_date_interval('2021-08-01','2022-08-30')
-    print(orders)
+    orders = orders_dh.query_by_date_interval('2021-08-01','2022-11-30')
+    #print(orders)
     customers = customers_dh.retrieve_all_items()
 
     customer_choices = [
@@ -68,17 +75,20 @@ def orders():
     form.customer.choices = customer_choices
 
     if request.method == "POST" and form.is_submitted():
+        mode='retrieved'
+        if form.create_order.data is not None:
+            print('creating order')
+            mode = 'new'
+            order_registry.instantiate_order(order_form=form)
 
-        order_registry.create_order(order_form=form)
+            order_timestamp_id = (
+                order_registry.current_order.order_dict['order_timestamp_id']
+            )
 
-        order_timestamp_id = (
-            order_registry.last_timestamp_id
-        )
-
-        print(form.custom_address.data)
+            print(form.custom_address.data)
 
         print("Redirect")
-        return redirect(url_for("add_items", order_timestamp_id=order_timestamp_id))
+        return redirect(url_for("add_items", mode=mode , order_timestamp_id=order_timestamp_id))
 
     return render_template("orders.html", orders=orders, form=form)
 
@@ -98,7 +108,7 @@ def delete_order(order_timestamp_id):
 
         #order_to_delete = orders_dh.query_by_key([order_day, order_id])
 
-        orders_dh.delete_item(value=[order_day, order_year])
+        orders_dh.delete_item(value=[order_year, order_id])
         #print(order_to_delete)
     return redirect(url_for("orders"))
 

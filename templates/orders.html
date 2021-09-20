@@ -14,15 +14,19 @@
       <table class="table table-bordered">
          <tr>
             <th width="10%">Data do pedido</th>
+            <th width="15%">id</th>
             <th width="10%">Cliente</th>
             <th width="20%">Endereço</th>
             <th width="10%">Data de entrega</th>
             <th width="25%">Itens do pedido</th>
             <th width="15%">Opções</th>
+
+
          </tr>
          {% for order in orders %}
          <tr>
             <td>{{order.order_date}}</td>
+            <td>{{order.order_timestamp_id}}</td>
             <td>{{order.customer_name}}</td>
             <td>{{order.address}}</td>
             <td>{{order.delivery_date}}</td>
@@ -32,7 +36,7 @@
                 <br/>
                 {% endfor %}
             </td>
-            <td><input type="button" name="alterar pedido"  data-toggle="modal" data-target="#dataModal" data-ajaxurl="{{ url_for('select_order') }}" data-url="{{ url_for('orders', order_timestamp_id=order.order_timestamp_id) }}" value="alterar pedido" id="{{order.order_timestamp_id}}" class="bt view_order_data" />
+            <td><input type="button" name="alterar pedido"  data-toggle="modal" data-target="#dataModal" data-ajaxurl="{{ url_for('select_order') }}" data-url="{{ url_for('add_items', mode='retrieved', order_timestamp_id=order.order_timestamp_id) }}" value="alterar pedido" id="{{order.order_timestamp_id}}" class="bt view_order_data" />
                <form action='/orders/delete_order/{{order.order_timestamp_id}}' method="post" onclick="return confirm('Tem certeza que quer excluir o pedido?');">
                   <button name="deletar item" type="submit" id="{{order.order_timestamp_id}}">Deletar Pedido</button>
                </form>
@@ -90,11 +94,11 @@
    <div class="modal-dialog">
       <div class="modal-content">
          <div class="modal-header">
+           <h4 class="modal-title">Alterar Pedido</h4>
             <button type="button" class="close" data-dismiss="modal">×</button>
-            <h4 class="modal-title">Alterar Pedido</h4>
          </div>
          <div class="modal-body">
-            <form method="post" id="order_insert_form">
+            <form method="get" id="order_insert_form">
                {{ form.customer.label }}
                {{ form.customer(class="form-control", id="customer_name_input_cell") }}
                <br />
@@ -121,7 +125,7 @@
                {{form.delivery_fee(class="form-control", id="delivery_fee_input")}}
                <br />
                <div class="modal-footer">
-                  {{form.create_order(class="btn btn-success success")}}
+                  {{form.update_order(class="btn btn-success success")}}
                </div>
                <br />
             </form>

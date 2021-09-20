@@ -9,32 +9,25 @@ class OrderRegistry:
     def __init__(self):
         self.registered_orders = []
         self.customer_handler = CustomerHandler()
-        # self.menu_handler = MenuHandler()
-        # self.order_class = Order()
-        # self.cart_class = Cart()
 
-    def create_order(self, order_form):
+    def instantiate_order(self, **kwargs):
 
-        customer_data = self.customer_handler.query_by_key(
-            [int(float(order_form.customer.data))]
-        )
+        order_form = kwargs.get('order_form', None)
+        customer_data = kwargs.get('customer_data', None)
+        order_timestamp_id = kwargs.get('order_timestamp_id', None)
 
-        self.current_order = Order(order_form=order_form, customer_data=customer_data)
-        self.current_order_status = "UNREGISTERED"
+        print(order_form,customer_data,order_timestamp_id)
 
-        # order_array = {'order_timestamp_id': self.current_order.order_dict['order_timestamp_id'],
-        #                'status': 'UNREGISTERED',
-        #                'order_object': self.current_order}
+        if order_form is not None:
+            customer_data = self.customer_handler.query_by_key(
+                [int(float(order_form.customer.data))]
+            )
 
-        # self.registered_orders.append(order_array)
-        self.last_timestamp_id = self.current_order.order_dict["order_timestamp_id"]
+            self.current_order = Order(order_form=order_form, customer_data=customer_data)
+            
 
-    def instantiate_order(self, order_timestamp_id):
-
-        self.current_order = Order(order_timestamp_id=order_timestamp_id)
-        print(self.current_order.order_dict)
-        self.last_timestamp_id = self.current_order.order_dict["order_timestamp_id"]
-
+        elif order_timestamp_id:
+            self.current_order = Order(order_timestamp_id=order_timestamp_id)
 
 
 class Order:
@@ -73,14 +66,15 @@ class Order:
                 "cart": self.cart.cart_items,
             }
 
-        if order_timestamp_id:
+        elif order_timestamp_id:
+
             order_dh = OrderHandler()
 
             order_id = int(float(order_timestamp_id))
-            order_year = int(datetime.utcfromtimestamp(order_timestamp_id).strftime('%Y'))
+            order_year = int(datetime.utcfromtimestamp(order_id).strftime('%Y'))
 
             order_data = order_dh.query_by_key(value=[order_year, order_id])
-            print(order_data)
+
             self.cart.cart_items = order_data.get('cart')
             self.order_dict = order_data
             self.order_dict['cart'] = self.cart.cart_items
@@ -134,11 +128,3 @@ class Cart:
         }
         self.cart_items.update(itemArray)
         print(self.cart_dict)
-
-#
-# oh = OrderRegistry()
-#
-# oh.instantiate_order(1630163151)
-
-# class Order:
-#     def __init__(self, table:str, keyname:str, region_name='us-east-1'):
