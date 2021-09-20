@@ -26,7 +26,7 @@
                <button type="button" class="bt view_data" name="alterar item" data-toggle="modal"  data-target="#modalItemsModifier" data-url="{{ url_for('menus', product_id=product.product_id) }}" data-ajaxurl="{{ url_for('select') }}"
                id="{{ product.product_id }}"> Alterar item
         </button>
-               <form action='/menus/delete_product/{{product.product_id}}' method="post" onclick="return confirm('Are you sure you wish to delete?');">
+               <form action="{{ url_for('delete_product_from_menu', product_id=product.product_id) }}" method="post" onclick="return confirm('Are you sure you wish to delete?');">
                   <button name="deletar item" type="submit" id="{{product.product_id}}">Deletar item</button>
                </form>
          </tr>

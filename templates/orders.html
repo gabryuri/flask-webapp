@@ -36,8 +36,8 @@
                 <br/>
                 {% endfor %}
             </td>
-            <td><input type="button" name="alterar pedido"  data-toggle="modal" data-target="#dataModal" data-ajaxurl="{{ url_for('select_order') }}" data-url="{{ url_for('add_items', mode='retrieved', order_timestamp_id=order.order_timestamp_id) }}" value="alterar pedido" id="{{order.order_timestamp_id}}" class="bt view_order_data" />
-               <form action='/orders/delete_order/{{order.order_timestamp_id}}' method="post" onclick="return confirm('Tem certeza que quer excluir o pedido?');">
+              <td><input type="button" name="alterar pedido"  data-toggle="modal" data-target="#dataModal" data-ajaxurl="{{ url_for('select_order') }}" data-url="{{ url_for('add_items', mode='retrieved', order_timestamp_id=order.order_timestamp_id) }}" value="alterar pedido" id="{{order.order_timestamp_id}}" class="bt view_order_data" />
+               <form action="{{ url_for('delete_order', order_timestamp_id=order.order_timestamp_id) }}" method="post" onclick="return confirm('Tem certeza que quer excluir o pedido?');">
                   <button name="deletar item" type="submit" id="{{order.order_timestamp_id}}">Deletar Pedido</button>
                </form>
             </td>
