@@ -104,7 +104,7 @@ def create_order():
 def delete_order(order_timestamp_id):
     if request.method == "POST":
         order_id = int(float(order_timestamp_id))
-        order_year = datetime.utcfromtimestamp(order_id).strftime('%Y')
+        order_year = int(datetime.utcfromtimestamp(order_id).strftime('%Y'))
 
         #order_to_delete = orders_dh.query_by_key([order_day, order_id])
 
